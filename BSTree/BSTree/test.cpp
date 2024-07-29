@@ -22,6 +22,7 @@ int main()
 
 	bst.Erase(10);
 	bst.Erase(4);
+	bst.Erase(6);
 	bst.InOrder();
 	return 0;
 }
