@@ -1,7 +1,7 @@
 #pragma once
 #include<iostream>
 using namespace std;
-//搜索二叉树：K类型
+//搜索二叉树：单独key型
 namespace K
 {
 	template<class K>
@@ -264,6 +264,7 @@ namespace K
 
 }
 
+//搜索二叉树：key,value型
 namespace KV
 {
 	template<class K,class V>
