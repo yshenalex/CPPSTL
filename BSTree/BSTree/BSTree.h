@@ -288,6 +288,16 @@ namespace KV
 	{
 		typedef BSTreeNode<K, V> Node;
 	public:
+		BSTree()
+			:_root(nullptr)
+		{}
+
+		~BSTree()
+		{
+			_Destroy(_root);
+			_root = nullptr;
+		}
+
 		bool Insert(const K& key, const V& value)
 		{
 			if (!_root)
@@ -319,7 +329,7 @@ namespace KV
 
 			cur = new Node(key, value);
 			if (parent->_key < key)
-				parent->_right - cur;
+				parent->_right = cur;
 			else
 				parent->_left = cur;
 
@@ -353,8 +363,21 @@ namespace KV
 			_InOrder(_root);
 		}
 	private:
+		void _Destroy(Node* root)
+		{
+			if (!root)
+				return;
+
+			_Destroy(root->_left);
+			_Destroy(root->_right);
+			delete root;
+		}
+
 		void _InOrder(Node* root)
 		{
+			if (!root)
+				return;
+
 			_InOrder(root->_left);
 			cout << root->_key << ":" << root->_value << endl;
 			_InOrder(root->_right);

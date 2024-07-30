@@ -46,11 +46,14 @@ void test1()
 void test2()
 {
 	KV::BSTree<string, string>dict;
-	dict.Insert("Network", "网络");
-	dict.Insert("Operating System", "操作系统");
-	dict.Insert("Data structure", "数据结构");
+	dict.InOrder();
+
+	dict.Insert("network", "网络");
+	dict.Insert("system", "系统");
+	dict.Insert("data", "数据");
 	dict.Insert("disk", "磁盘");
 	
+	//字典查询
 	string str;
 	while (cin >> str)
 	{
@@ -65,9 +68,31 @@ void test2()
 		}
 	}
 }
+
+void test3()
+{
+
+	//单词计数
+	string a[] = { "apple","apple", "banana", "banana", "apple", "watermelon", "watermelon", "watermelon", "banana", "apple", "grapes", "apple", "banana", "apple", "apple", "apple" };
+
+	KV::BSTree<string, int>dict;
+	for (auto& e : a)
+	{
+		auto* ret = dict.Find(e);
+		if (!ret)
+			dict.Insert(e, 1);
+		else
+			ret->_value += 1;
+	}
+
+	dict.InOrder();
+
+}
+
 int main()
 {
 	//test1();
-	test2();
+	//test2();
+	test3();
 	return 0;
 }
