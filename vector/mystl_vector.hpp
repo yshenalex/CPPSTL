@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cassert>
 
-namespace MYSTL
+namespace mystl
 {
     template <typename _Tp> //_Tp: type of element
     class vector
@@ -12,6 +12,8 @@ namespace MYSTL
 
     public:
         vector();
+        vector(std::initializer_list<_Tp> __l);
+        vector<_Tp>& operator=(std::initializer_list<_Tp> __l);
         vector(const vector<_Tp> &__v);
         vector(size_t __n, const _Tp &__val = _Tp());
         vector<_Tp> &operator=(vector<_Tp> __v);
@@ -47,6 +49,29 @@ namespace MYSTL
     vector<_Tp>::vector() : _M_start(nullptr), _M_finish(nullptr), _M_end_of_storage(nullptr)
     {
     }
+
+    template <typename _Tp>
+    inline vector<_Tp>::vector(std::initializer_list<_Tp> __l)
+    {
+        _M_start = new _Tp[__l.size()];
+        _M_finish = _M_end_of_storage = _M_start + __l.size();
+        iterator vit = _M_start;
+        typename std::initializer_list<_Tp>::iterator it = __l.begin();
+        while (it != __l.end())
+        {
+            *vit++ = *it++;
+        }
+    }
+    template <typename _Tp>
+    vector<_Tp>& vector<_Tp>::operator=(std::initializer_list<_Tp> __l)
+    {
+        vector<_Tp> tmp(__l);
+        std::swap(tmp._M_start, this->_M_start);
+        std::swap(tmp._M_finish, this->_M_finish);
+        std::swap(tmp._M_end_of_storage, this->_M_end_of_storage);
+        return *this;
+    }
+
 
     template <typename _Tp>
     vector<_Tp>::vector(const vector<_Tp> &__v) : _M_start(nullptr), _M_finish(nullptr), _M_end_of_storage(nullptr)
