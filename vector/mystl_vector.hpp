@@ -12,8 +12,6 @@ namespace mystl
 
     public:
         vector();
-        vector(std::initializer_list<_Tp> __l);
-        vector<_Tp>& operator=(std::initializer_list<_Tp> __l);
         vector(const vector<_Tp> &__v);
         vector(size_t __n, const _Tp &__val = _Tp());
         vector<_Tp> &operator=(vector<_Tp> __v);
@@ -34,10 +32,16 @@ namespace mystl
         void resize(size_t __n, const _Tp &__val = _Tp());
         void push_back(const _Tp &__val);
         void pop_back();
-        void push_front(const _Tp &__val);
-        void pop_front();
         iterator insert(iterator __pos, const _Tp &__val);
         iterator erase(iterator __pos);
+
+        // c++11新特性：
+        vector(std::initializer_list<_Tp> __l);
+        vector<_Tp> &operator=(std::initializer_list<_Tp> __l);
+        vector(vector<_Tp> &&__v) noexcept;
+        vector<_Tp> &operator=(vector<_Tp> &&__v) noexcept;
+        void push_back(_Tp &&__val);
+        iterator insert(iterator __pos, _Tp &&__val);
 
     private:
         iterator _M_start;
@@ -46,32 +50,7 @@ namespace mystl
     };
 
     template <typename _Tp>
-    vector<_Tp>::vector() : _M_start(nullptr), _M_finish(nullptr), _M_end_of_storage(nullptr)
-    {
-    }
-
-    template <typename _Tp>
-    inline vector<_Tp>::vector(std::initializer_list<_Tp> __l)
-    {
-        _M_start = new _Tp[__l.size()];
-        _M_finish = _M_end_of_storage = _M_start + __l.size();
-        iterator vit = _M_start;
-        typename std::initializer_list<_Tp>::iterator it = __l.begin();
-        while (it != __l.end())
-        {
-            *vit++ = *it++;
-        }
-    }
-    template <typename _Tp>
-    vector<_Tp>& vector<_Tp>::operator=(std::initializer_list<_Tp> __l)
-    {
-        vector<_Tp> tmp(__l);
-        std::swap(tmp._M_start, this->_M_start);
-        std::swap(tmp._M_finish, this->_M_finish);
-        std::swap(tmp._M_end_of_storage, this->_M_end_of_storage);
-        return *this;
-    }
-
+    vector<_Tp>::vector() : _M_start(nullptr), _M_finish(nullptr), _M_end_of_storage(nullptr) {}
 
     template <typename _Tp>
     vector<_Tp>::vector(const vector<_Tp> &__v) : _M_start(nullptr), _M_finish(nullptr), _M_end_of_storage(nullptr)
@@ -93,9 +72,12 @@ namespace mystl
     template <typename _Tp>
     vector<_Tp> &vector<_Tp>::operator=(vector<_Tp> __v)
     {
-        std::swap(_M_start, __v._M_start);
-        std::swap(_M_finish, __v._M_finish);
-        std::swap(_M_end_of_storage, __v._M_end_of_storage);
+        if (this != &__v)
+        {
+            std::swap(_M_start, __v._M_start);
+            std::swap(_M_finish, __v._M_finish);
+            std::swap(_M_end_of_storage, __v._M_end_of_storage);
+        }
         return *this;
     }
 
@@ -180,7 +162,7 @@ namespace mystl
         if (_M_start)
         {
             for (size_t i = 0; i < sz; i++)
-                tmp[i] = _M_start[i];
+                tmp[i] = std::move(_M_start[i]); // 使用移动语义, 对于int这种类型固然没用，但如果是自定义类或string等将可以提高效率
 
             delete[] _M_start;
         }
@@ -197,9 +179,7 @@ namespace mystl
             reserve(__n);
             size_t old_size = size();
             for (size_t i = old_size; i < __n; i++)
-            {
-                _M_start[i] = __val;
-            }
+                push_back(__val);
         }
 
         _M_finish = _M_start + __n;
@@ -213,16 +193,6 @@ namespace mystl
     void vector<_Tp>::pop_back()
     {
         erase(_M_finish - 1);
-    }
-    template <typename _Tp>
-    void vector<_Tp>::push_front(const _Tp &__val)
-    {
-        insert(_M_start, __val);
-    }
-    template <typename _Tp>
-    void vector<_Tp>::pop_front()
-    {
-        erase(_M_start);
     }
     template <typename _Tp>
     typename vector<_Tp>::iterator vector<_Tp>::insert(iterator __pos, const _Tp &__val)
@@ -241,7 +211,7 @@ namespace mystl
         iterator it = _M_finish;
         while (it != __pos)
         {
-            *it = *(it - 1);
+            *it = std::move(*(it - 1)); // 使用移动语义
             it--;
         }
 
@@ -259,11 +229,85 @@ namespace mystl
         iterator it = __pos;
         while ((it + 1) != _M_finish)
         {
-            *it = *(it + 1);
+            *it = std::move(*(it + 1));
             it++;
         }
 
         _M_finish--;
+        return __pos;
+    }
+
+    template <typename _Tp>
+    vector<_Tp>::vector(std::initializer_list<_Tp> __l) : _M_start(nullptr), _M_finish(nullptr), _M_end_of_storage(nullptr)
+    {
+        _M_start = new _Tp[__l.size()];
+        _M_finish = _M_end_of_storage = _M_start + __l.size();
+        iterator vit = _M_start;
+        typename std::initializer_list<_Tp>::iterator it = __l.begin();
+        while (it != __l.end())
+        {
+            *vit++ = *it++;
+        }
+    }
+
+    template <typename _Tp>
+    vector<_Tp> &vector<_Tp>::operator=(std::initializer_list<_Tp> __l)
+    {
+        vector<_Tp> tmp(__l);
+        std::swap(tmp._M_start, this->_M_start);
+        std::swap(tmp._M_finish, this->_M_finish);
+        std::swap(tmp._M_end_of_storage, this->_M_end_of_storage);
+        return *this;
+    }
+
+    template <typename _Tp>
+    vector<_Tp>::vector(vector<_Tp> &&__v) noexcept
+        : _M_start(__v._M_start), _M_finish(__v._M_finish), _M_end_of_storage(__v._M_end_of_storage)
+    {
+        __v._M_start = __v._M_finish = __v._M_end_of_storage = nullptr;
+    }
+
+    template <typename _Tp>
+    vector<_Tp> &vector<_Tp>::operator=(vector<_Tp> &&__v) noexcept
+    {
+        if (this != &__v)
+        {
+            delete[] _M_start;
+            _M_start = __v._M_start;
+            _M_finish = __v._M_finish;
+            _M_end_of_storage = __v._M_end_of_storage;
+
+            __v._M_start = __v._M_finish = __v._M_end_of_storage = nullptr;
+        }
+
+        return *this;
+    }
+
+    template <typename _Tp>
+    void vector<_Tp>::push_back(_Tp &&__val)
+    {
+        insert(_M_finish, std::move(__val));
+    }
+
+    template <typename _Tp>
+    typename vector<_Tp>::iterator vector<_Tp>::insert(iterator __pos, _Tp &&__val)
+    {
+        assert(__pos >= _M_start && __pos <= _M_finish);
+        if (_M_finish == _M_end_of_storage)
+        {
+            size_t len = __pos - _M_start;
+            size_t newCapacity = capacity() == 0 ? 4 : capacity() * 2;
+            reserve(newCapacity);
+        }
+        iterator it = _M_finish;
+        while (it != __pos)
+        {
+            *it = std::move(*(it - 1));
+            it--;
+        }
+
+        *__pos = std::move(__val);
+        _M_finish++;
         return __pos;
     }
 
