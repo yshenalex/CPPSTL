@@ -179,7 +179,11 @@ namespace mystl
             reserve(__n);
             size_t old_size = size();
             for (size_t i = old_size; i < __n; i++)
-                push_back(__val);
+                _M_start[i] = __val;
+        }
+        else
+        {
+            // TODO:应该调用被移除元素析构函数，避免内存泄露   
         }
 
         _M_finish = _M_start + __n;
@@ -264,6 +268,7 @@ namespace mystl
     vector<_Tp>::vector(vector<_Tp> &&__v) noexcept
         : _M_start(__v._M_start), _M_finish(__v._M_finish), _M_end_of_storage(__v._M_end_of_storage)
     {
+        // 这是拷贝构造函数，直接窃取__V的资源。本来自己是没有资源的，无需考虑释放原来的资源(区别于移动赋值运算符重载)
         __v._M_start = __v._M_finish = __v._M_end_of_storage = nullptr;
     }
 
@@ -298,6 +303,8 @@ namespace mystl
             size_t len = __pos - _M_start;
             size_t newCapacity = capacity() == 0 ? 4 : capacity() * 2;
             reserve(newCapacity);
+
+            __pos = _M_start + len;
         }
         iterator it = _M_finish;
         while (it != __pos)
@@ -308,6 +315,7 @@ namespace mystl
 
         *__pos = std::move(__val);
         _M_finish++;
+
         return __pos;
     }
 
