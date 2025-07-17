@@ -139,14 +139,14 @@ namespace mystl
     template <typename _Tp>
     _Tp &vector<_Tp>::operator[](size_t __pos)
     {
-        assert(__pos >= 0 && __pos < size());
+        assert(__pos < size()); //size_t本身就是>=0无需添加这一条
         return *(_M_start + __pos);
     }
 
     template <typename _Tp>
     const _Tp &vector<_Tp>::operator[](size_t __pos) const
     {
-        assert(__pos >= 0 && __pos < size());
+        assert(__pos < size()); //size_t本身就是>=0无需添加这一条
         return *(_M_start + __pos);
     }
 
@@ -156,7 +156,7 @@ namespace mystl
         if (__n <= capacity())
             return;
 
-        _Tp *tmp = new _Tp[__n];
+        _Tp *tmp = new _Tp[__n]; // FIXME:调用默认构造函数，但是有些自定义类可能没有默认构造函数，将报错
         size_t sz = size();
 
         if (_M_start)
@@ -183,7 +183,7 @@ namespace mystl
         }
         else
         {
-            // TODO:应该调用被移除元素析构函数，避免内存泄露   
+            // FIXME:应该调用被移除元素析构函数，避免内存泄露   
         }
 
         _M_finish = _M_start + __n;
@@ -230,15 +230,16 @@ namespace mystl
         assert(!empty()); // 做空容器判断，否则可能存在未定义问题。比如，删除最后一个，使用_M_finish-1将越界。
         assert(__pos >= _M_start && __pos < _M_finish);
 
-        iterator it = __pos;
-        while ((it + 1) != _M_finish)
+        iterator it = __pos + 1;
+        while (it != _M_finish)
         {
-            *it = std::move(*(it + 1));
+            *(it - 1) = std::move(*it);
             it++;
         }
+        // FIXME:还要调用被移除元素的析构函数
 
         _M_finish--;
-        return __pos;
+        return __pos; // 迭代器可能失效，但是stl库的vector也是这样的
     }
 
     template <typename _Tp>
