@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cassert>
+#include <memory>
 
 namespace mystl
 {
@@ -156,7 +157,7 @@ namespace mystl
         if (__n <= capacity())
             return;
 
-        _Tp *tmp = new _Tp[__n]; // FIXME:调用默认构造函数，但是有些自定义类可能没有默认构造函数，将报错
+        _Tp *tmp = reinterpret_cast<_Tp*>(new char[__n * sizeof(_Tp)]);
         size_t sz = size();
 
         if (_M_start)
