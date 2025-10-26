@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include<iostream>
 #include<deque>
 using namespace std;
@@ -54,39 +53,7 @@ int main()
 		cout << q.back() << " ";
 		q.pop();
 	}
+	cout << endl;
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

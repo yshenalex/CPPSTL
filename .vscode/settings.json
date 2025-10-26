@@ -32,6 +32,7 @@
         "tuple": "cpp",
         "utility": "cpp",
         "cmath": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "algorithm": "cpp"
     }
 }
