@@ -33,6 +33,9 @@
         "utility": "cpp",
         "cmath": "cpp",
         "random": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "iterator": "cpp",
+        "memory": "cpp",
+        "numeric": "cpp"
     }
 }
