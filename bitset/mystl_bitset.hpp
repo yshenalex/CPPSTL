@@ -8,7 +8,7 @@ namespace mystl
 
     /**
      * @brief 模拟实现stl库的位图bitset
-     * 
+     *
      * @tparam _N 位图位个数
      */
     template <size_t _N>
@@ -19,22 +19,28 @@ namespace mystl
 
         /**
          * @brief 将第i位设置为1
-         * 
-         * @param i 
+         *
+         * @param i
          */
         void set(size_t i);
 
         /**
          * @brief 将第i位重置为0
-         * 
-         * @param i 
+         *
+         * @param i
          */
         void reset(size_t i);
 
         /**
+         * @brief 位图所有位置都重置0
+         *
+         */
+        void reset();
+
+        /**
          * @brief 判断第i位是否已经设置了
-         * 
-         * @param i 
+         *
+         * @param i
          * @return true 已经设置，即1
          * @return false 没有设置，即0
          */
@@ -42,22 +48,22 @@ namespace mystl
 
         /**
          * @brief 位图大小
-         * 
-         * @return size_t 
+         *
+         * @return size_t
          */
         size_t size() const;
 
         /**
          * @brief 位图有效位个数(即存储1的位个数)
-         * 
-         * @return size_t 
+         *
+         * @return size_t
          */
         size_t count() const;
 
         /**
          * @brief 位图用字符串形式显示
-         * 
-         * @return string 
+         *
+         * @return string
          */
         string toString();
 
@@ -95,6 +101,13 @@ namespace mystl
 
         _bits[index] &= ~(1 << pos);
         _num--;
+    }
+
+    template <size_t _N>
+    void bitset<_N>::reset()
+    {
+        _bits.resize(_N / sizeof(char) + 1, 0);
+        _num = 0;
     }
 
     template <size_t _N>
