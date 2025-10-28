@@ -69,7 +69,9 @@ namespace mystl
         string toString();
 
     private:
+        // 位图底层使用char类型数组实现
         vector<char> _bits;
+        // 已经设置为1的位数
         size_t _num;
     };
 
@@ -107,8 +109,8 @@ namespace mystl
     template <size_t _N>
     void bitset<_N>::reset()
     {
-        _bits.resize(_N / sizeof(char) + 1, 0);
-        _num = 0;
+        for (auto& e: _bits)
+            e = 0;
     }
 
     template <size_t _N>
